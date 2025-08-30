@@ -83,6 +83,27 @@ def test_model():
         
         print(f"Vector {vector} --> Predicted: {predicted_letter} | {confidence} |, Actual: {letter}")
         
+def load_scrambled_test_data():
+    with open("data/scrambled_test_vectors.json", "r") as f:
+        vectors = json.load(f)
+    return vectors
+
+def test_model_on_unkown_data():
+    model = load_trained_model()
+    test_vectors = load_scrambled_test_data()
+    
+    print("-" * 30)
+    
+    for i, vector in enumerate(test_vectors):
+        input_tensor = torch.tensor([vector], dtype=torch.float32)
+        output = model(input_tensor)
+        
+        probabilities = F.softmax(output, dim=1)
+        confidence = torch.max(probabilities).item()
+        predicted_letter_num = torch.argmax(output).item()
+        predicted_letter = chr(predicted_letter_num + ord('a'))
+        
+        print(f"Test {i+1}: Vector {vector} --> Pred: {predicted_letter} | Conf: {confidence:.3f}")
 
 class AlphabetNet(nn.Module):
     def __init__(self):
@@ -105,4 +126,5 @@ class AlphabetNet(nn.Module):
 if __name__ == "__main__":
     # trained_model = train_model()
     # print("Training Complete")
-    test_model()
+    # test_model()
+    test_model_on_unkown_data()
