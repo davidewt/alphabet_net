@@ -12,4 +12,5 @@ generate_data.py generated a completely new alphabet-vector map
 
 generate_graph.py visualises the alphabet vectors in a 3D-Color space. This is to see the similarities and vicinity of points. In the case that two point are very close to each other, there is a higher change to mix up the two.
 
-
+- if you want to regenerate the corrupted data then just run corrupt_data.py again
+- make sure to set the test_all_corrupted_levels() in the main.py and then run it
