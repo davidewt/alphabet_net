@@ -105,6 +105,59 @@ def test_model_on_unkown_data():
         
         print(f"Test {i+1}: Vector {vector} --> Pred: {predicted_letter} | Conf: {confidence:.3f}")
 
+def load_corrupted_data(level):
+    """Load corrupted data for a specific corruption level"""
+    filename = f"data/corrupted_data_level_{level}.json"
+    with open(filename, "r") as f:
+        corrupted_mapping = json.load(f)
+    return corrupted_mapping
+
+def test_model_on_currupted_data(level):
+    model = load_trained_model()
+    corrupted_mapping = load_corrupted_data(level)
+    
+    print(f"\nTesting on Corruption Level {level}")
+    print("-" * 50)
+    
+    correct_predictions = 0
+    total_predictions = 0
+    
+    for actual_letter, corrupted_vector in corrupted_mapping.items():
+        input_tensor = torch.tensor([corrupted_vector], dtype=torch.float32)
+        output = model(input_tensor)
+        
+        probabilities = F.softmax(output, dim=1)
+        confidence = torch.max(probabilities).item()
+        predicted_letter_num = torch.argmax(output).item()
+        predicted_letter = chr(predicted_letter_num + ord('a'))
+        
+        is_correct = predicted_letter == actual_letter
+        if is_correct:
+            correct_predictions += 1
+        total_predictions += 1
+        
+        status = "Y" if is_correct else "N"
+        print(f"{status} {corrupted_vector} --> Pred: {predicted_letter} | Act: {actual_letter} | Conf: {confidence:.3f}")
+        
+    accuracy = correct_predictions / total_predictions * 100
+    print(f"\n Accuracy: {correct_predictions}/{total_predictions} = {accuracy:.1f}%")
+    return accuracy
+
+def test_all_corrupted_levels():
+    print("Testing Model Robustness Against Corruption")
+    print("=" * 60)
+    
+    accuracies = {}
+    
+    for level in [1,2,3,4]:
+        accuracy = test_model_on_currupted_data(level)
+        accuracies[level] = accuracy
+        
+    print("\n" + "=" * 60)
+    print("SUMMARY:")
+    for level, accuracy in accuracies.items():
+        print(f"Corruption Level {level}: {accuracy:.1f}% accuracy")
+
 class AlphabetNet(nn.Module):
     def __init__(self):
         super(AlphabetNet, self).__init__()
@@ -127,4 +180,5 @@ if __name__ == "__main__":
     # trained_model = train_model()
     # print("Training Complete")
     # test_model()
-    test_model_on_unkown_data()
+    # test_model_on_unkown_data()
+    test_all_corrupted_levels()
