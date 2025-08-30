@@ -5,6 +5,7 @@ import torch.optim as optim
 import numpy as np
 import string
 from torch.utils.data import Dataset, DataLoader
+import torch.nn.functional as F
 
 def load_alphabet_mapping():
     """Load the alphabet-to-vector mapping from JSON file"""
@@ -76,7 +77,11 @@ def test_model():
         predicted_letter_num = torch.argmax(output).item()
         predicted_letter = chr(predicted_letter_num + ord('a'))
         
-        print(f"Vector {vector} --> Predicted: {predicted_letter}, Actual: {letter}")
+        # Getting probability
+        probabilities = F.softmax(output, dim=1)
+        confidence = torch.max(probabilities).item()
+        
+        print(f"Vector {vector} --> Predicted: {predicted_letter} | {confidence} |, Actual: {letter}")
         
 
 class AlphabetNet(nn.Module):
