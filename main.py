@@ -13,14 +13,9 @@ def load_alphabet_mapping():
     return mapping
 
 def prepare_training_data():
-    # Load the mapping
     mapping = load_alphabet_mapping()
-    
-    # We'll build these lists
     vectors = []
     letter_numbers = []
-    
-    # Create alphabet list for converting letters to numbers
     alphabet_list = list(string.ascii_lowercase)
     
     # Fill the lists from the mapping
